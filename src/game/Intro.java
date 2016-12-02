@@ -14,7 +14,7 @@ public class Intro extends BasicGameState {
 	private Background back;
     private boolean stop, played;
     private org.newdawn.slick.Sound sound;
-    private String introBg = "res/intro.png",
+    private String introBg = "res/introNEW.png",
 	title = "res/bigTitle.png",
 	soundMenu = "res/menu.wav"; 
     		

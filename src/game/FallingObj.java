@@ -4,10 +4,6 @@ import java.util.Random;
 import org.newdawn.slick.*;
 import org.newdawn.slick.geom.*;
 
-/**
- *
- * @author thegi
- */
 public class FallingObj {
     private Shape s;
     private static float gravity = 0.1f;
@@ -36,22 +32,23 @@ public class FallingObj {
     public int randomNum(int x, int y){
         return r.nextInt(Math.max(x, y) - Math.min(x, y) + 1) + Math.min(x, y);
     }
-    public void update(int height, boolean collidePlatform, boolean collideBox, boolean collideMoving, boolean pDead) {
-        ySpeed += gravity;
-        if (s.getY() >= height || pDead){
+    public void update(boolean dead, boolean collidePlatform, boolean collideBox) {
+        
+        if (dead){
             // set new starting position of object
             ySpeed = 0;
             s.setX(randomNum(50, 1200));
             s.setY(30);
-            xSpeed = speeds[randomNum(0, 1)];
+            xSpeed = speeds[randomNum(0, 1)];            
         } else {
-            if (!collidePlatform && !collideMoving){
+            if (!collidePlatform){
                 s.setY(s.getY() + ySpeed);
+                ySpeed += gravity;
             }
             if (collideBox){
                 xSpeed = -xSpeed;
             }
-            s.setX(s.getX() + xSpeed);
+            s.setX(s.getX() + xSpeed);            
         }
     }
 

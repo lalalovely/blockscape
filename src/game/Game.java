@@ -10,6 +10,7 @@ public class Game extends BasicGameState {
     private int l;
 
     private Player player;
+    private boolean isLastLevel;
 
     public Game(int ID) {
         this.ID = ID;
@@ -17,7 +18,20 @@ public class Game extends BasicGameState {
     
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-    	if (l == 4){
+    	if (l == 10){
+    		level = new Level10();
+    	} else if (l == 9){
+    		level = new Level9();
+    	}
+    	else if (l == 8){
+    		level = new Level8();
+    	} else if (l == 7){
+    		level = new Level7();
+    	} else if (l == 6){
+    		level = new Level6();
+    	} else if (l == 5){
+    		level = new Level5();
+    	} else if (l == 4){
     		level = new Level4();
     	} else if (l == 3){
     		level = new Level3();
@@ -38,7 +52,11 @@ public class Game extends BasicGameState {
     }
 
     public void update(GameContainer gc, StateBasedGame sbg, int i) throws SlickException {
-        level.update(gc, sbg, i);
+    	if (isLastLevel){
+    		level.updateLastLevel(gc, sbg);
+    	} else {
+    		level.update(gc, sbg);
+    	}
         player.update(gc, i);
     }
 
@@ -53,5 +71,9 @@ public class Game extends BasicGameState {
     
     public boolean cleared(){
     	return level.isWin();
+    }
+    
+    public void setLastLevel(boolean l){
+    	isLastLevel = l;
     }
 }

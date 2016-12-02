@@ -6,11 +6,14 @@ import org.newdawn.slick.state.StateBasedGame;
 
 
 public interface Level  {
-    public void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
+    
+	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException;
 
-    public void update(GameContainer gc, StateBasedGame sbg, int i) throws SlickException;
+    public void update(GameContainer gc, StateBasedGame sbg) throws SlickException;
+    
+    public void updateLastLevel(GameContainer gc, StateBasedGame sbg) throws SlickException;
 
     public boolean collideBox(Shape s);
     
@@ -27,6 +30,8 @@ public interface Level  {
     public boolean collideTel(Shape s);
 
     public boolean collideDoor(Shape s);
+    
+    public boolean collideSwitch(Shape s);
 
     public boolean winLevel(Shape s);
     
@@ -35,6 +40,16 @@ public interface Level  {
     public boolean getKeyTel();
     
     public boolean getKeyMain();
+        
+    public boolean getSwitch();
+        
+    public int getStartX();
+    
+    public int getStartY();
+    
+    public int getTelX();
+    
+    public int getTelY();
     
     public boolean isWin();
     
@@ -47,6 +62,8 @@ public interface Level  {
     public void setWin(boolean w);
     
     public void setDead(boolean d);
+    
+    public void setSwitch(boolean s);
     
         
 }

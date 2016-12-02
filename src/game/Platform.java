@@ -13,14 +13,13 @@ public class Platform {
     private int VERTICAL = -1;  
     private Image img;
     private Shape s;
-    private ShapeRenderer sr;
-    private boolean drawRect, drawImg;
+    private ShapeRenderer sr;    
     private int speed = 1;
     private int dir = 0;
     private float start, stop;
        
     
-    public Platform(int x, int y, int width, int height, String l, boolean drawRect){
+    public Platform(int x, int y, int width, int height, String l){
         s = new Rectangle(x, y, width, height);
         sr = new ShapeRenderer();
         try{
@@ -28,11 +27,9 @@ public class Platform {
         } catch (SlickException e){
             e.printStackTrace();
         }        
-        this.drawRect = drawRect;
-        drawImg = true;
     }
     
-    public Platform(int x, int y, int width, int height, String l, boolean drawRect, int dir, int start, int stop){
+    public Platform(int x, int y, int width, int height, String l, int dir, int start, int stop){
         s = new Rectangle(x, y, width, height);
         sr = new ShapeRenderer();
         this.start = start;
@@ -43,21 +40,13 @@ public class Platform {
             e.printStackTrace();
         }        
         this.dir = dir;
-        this.drawRect = drawRect;
-        drawImg = true;
     }
     
     
     
     public void render(GameContainer gc, Graphics g) throws SlickException {
-        if (drawImg){
-        	sr.textureFit(s, img);
-        }
-        
-        if (drawRect){
-            g.draw(s);  
-        }
-    }
+      	sr.textureFit(s, img);
+  	}
     
     public void update(){
     	
@@ -79,9 +68,9 @@ public class Platform {
     
     public boolean intersects(Shape a){
         return s.intersects(a);
-    }       
+    }     
+ 
+ 
     
-    public void setDrawImg(boolean d){
-    	drawImg = d;
-    }
+   
 }

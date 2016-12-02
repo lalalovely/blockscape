@@ -124,10 +124,13 @@ public class Menu extends BasicGameState {
 		} else if ((x >= 558 && x <= 655) && (y <= 123 && y >= 32)) {
             isHow = true;
             if (Mouse.isButtonDown(0)) {
-            	arg1.enterState(7);
+            	arg1.enterState(-3);
             }
 		} else if ((x >= 679 && x <= 774) && (y <= 123 && y >= 32)) {
 			isAbout = true;
+			if (Mouse.isButtonDown(0)) {
+            	arg1.enterState(-7);
+            }
 		} else if ((x >= 799 && x <= 893) && (y <= 123 && y >= 32)) {
 			isExit = true;
 			if (Mouse.isButtonDown(0)) {

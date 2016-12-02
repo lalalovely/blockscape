@@ -1,6 +1,8 @@
 package game;
 
 
+import java.util.*;
+
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -10,16 +12,17 @@ import org.newdawn.slick.geom.*;
 import org.newdawn.slick.state.*;
 import org.newdawn.slick.Sound;
 
-public class Level1 extends BasicGameState implements Level{
+public class Level1 implements Level{
     private static final int ID = 4;
     private Shape levelBase, key, door,bimg;
     private FallingObj obj1;
     private Image k, d, img;
     private ShapeRenderer sr;
     private Platform land, water, p1, p2, p3, p4, p5;
+    private List<Platform> platforms = new ArrayList<>();
     private Sound sound;
     private boolean pDead, pWin, keyMain;
-    private boolean stop, played;
+    private boolean stop;
     private String pImg = "res/JumPlatform.png",
     		dImg = "res/DoorPlatform.png",
     		landImg = "res/land.png",
@@ -27,6 +30,7 @@ public class Level1 extends BasicGameState implements Level{
     	    keyImg = "res/BrownKey.png",
     	    doorImg = "res/brownDoor.png",
     	    soundLevel = "res/level1.wav";
+    private int playerX, playerY;
 
     
     
@@ -51,26 +55,38 @@ public class Level1 extends BasicGameState implements Level{
                             1355, 750,
                             10, 750};
             levelBase = new Polygon(polygonPoints);
-            p1 = new Platform(480, 600, 140, 50, pImg, false);
-            p2 = new Platform(742, 600, 140, 50, pImg, false);
-            p3 = new Platform(902, 450, 140, 50, pImg, false);
-            p4 = new Platform(1052, 300, 140, 50, pImg, false);
-            p5 = new Platform(1202, 150, 150, 40, dImg, false); // door
-            land = new Platform(10, 620, 300, 70, landImg, false);
-            water = new Platform(10, 683, 1344, 65, waterImg, false);
+            p1 = new Platform(480, 600, 140, 50, pImg);
+            p2 = new Platform(742, 600, 140, 50, pImg);
+            p3 = new Platform(902, 450, 140, 50, pImg);
+            p4 = new Platform(1052, 300, 140, 50, pImg);
+            p5 = new Platform(1202, 150, 150, 40, dImg); // door
+            land = new Platform(10, 620, 300, 70, landImg);
+            water = new Platform(10, 683, 1344, 65, waterImg);
+            
             key = new Rectangle(770, 520, 110, 90);
             door = new Rectangle(1220,35,120,120);
             bimg = new Rectangle(0,0,1366,768);
+            bimg = new Rectangle(10,31,1345,700);
+            
             obj1 = new FallingObj();
+            
             k = new Image(keyImg);
             d = new Image(doorImg);
+            img = new Image("res/lvl1BG.png");
+            
             sr = new ShapeRenderer();
-            sound = new Sound(soundLevel);    
-            bimg = new Rectangle(10,31,1345,700);
-            img = new Image("res/bg1.png");
-            played = false;
-            stop = false;
-        }
+            
+            sound = new Sound(soundLevel);       
+        
+            playerX = 25;
+            playerY = 550;
+            platforms.add(p1);
+            platforms.add(p2);
+            platforms.add(p3);
+            platforms.add(p4);
+            platforms.add(p5);
+            platforms.add(land);                
+    }
 	
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 		sr.textureFit(bimg,img); 
@@ -92,42 +108,90 @@ public class Level1 extends BasicGameState implements Level{
 	}
 
 
-    public void update(GameContainer gc, StateBasedGame sbg, int i) throws SlickException {
-        obj1.update(650, collidePlatform(obj1.getS()), collideBox(obj1.getS()), collideMovingPlatform(obj1.getS()), pDead);
+    public void update(GameContainer gc, StateBasedGame sbg) throws SlickException {
+        obj1.update(water.intersects(obj1.getS()), collidePlatform(obj1.getS()) || collideMovingPlatform(obj1.getS()), collideBox(obj1.getS()));
         if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)){
+        	sound.stop();
         	stop = true;
-            sound.stop();
             sbg.enterState(2);
         }
-        if (!stop && !played){
-            sound.loop();
-            played = true;
+        if (!sound.playing() && !stop){
+            sound.play();        
         }
         if (pWin){
             pWin = false;
+            stop = true;
             ((Select)sbg.getState(2)).setCleared(true, 1);
+            sound.stop();
+            ((ClearedLevel) sbg.getState(-2)).setCurrentLvl(1);
+            ((ClearedLevel) sbg.getState(-2)).init(gc, sbg);
+            sbg.enterState(-2);
+        }
+        if (pDead){
+        	((FailedLevel) sbg.getState(-1)).setCurrentLvl(1);
+            ((FailedLevel) sbg.getState(-1)).init(gc, sbg);
+            try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
             stop = true;
             sound.stop();
-            this.init(gc, sbg);
+            sbg.enterState(-1);
+        }
+    }
+    
+    // for last Level
+    public void updateLastLevel(GameContainer gc, StateBasedGame sbg) throws SlickException {
+    	obj1.update(water.intersects(obj1.getS()), collidePlatform(obj1.getS()) || collideMovingPlatform(obj1.getS()), collideBox(obj1.getS()));
+        if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)){
+        	sound.stop();
+        	stop = true;
             sbg.enterState(2);
+        }
+        if (!sound.playing() && !stop){
+            sound.play();        
+        }
+        if (pWin){
+            pWin = false;
+            sound.stop();  
+            stop = true;
+            ((Game) sbg.getState(3)).setLastLevel(true);
+            ((Game) sbg.getState(3)).setLevel(2);
+            ((Game) sbg.getState(3)).init(gc, sbg);
+            sbg.enterState(3);
+            
+        }
+        if (pDead){
+        	((FailedLevel) sbg.getState(-1)).setCurrentLvl(10);
+            ((FailedLevel) sbg.getState(-1)).init(gc, sbg);
+            try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+            sound.stop();
+            stop = true;
+            sbg.enterState(-1);
         }
     }
 	
 	
     @Override
     public boolean collideBox(Shape s) {
-        return levelBase.intersects(s);
-                
+        return levelBase.intersects(s);                
     }
-
     
     @Override
     public boolean collidePlatform(Shape s){
-        return  p1.intersects(s) || p2.intersects(s) || 
-                p3.intersects(s) || p4.intersects(s) ||
-                p5.intersects(s) || land.intersects(s);         
+        for (int i = 0; i < platforms.size(); i++){
+        	if(platforms.get(i).intersects(s)){
+        		return true;
+        	}
+        }
+        return false;
     }
-    
+            
     @Override
     public boolean collideMovingPlatform(Shape s){
     	return false;
@@ -135,7 +199,7 @@ public class Level1 extends BasicGameState implements Level{
 	
     // dead
     public boolean gameOver(Shape s){
-        return obj1.collidesWith(s) || water.intersects(s);
+    	return obj1.collidesWith(s) || water.intersects(s);
     }
 
     public void setDead(boolean c){
@@ -195,11 +259,44 @@ public class Level1 extends BasicGameState implements Level{
 		return pWin;
 	}
 
-	public int getID() {
-        return ID;
-    }
+	@Override
+	public int getStartX() {
+		return playerX;
+	}
 
-	
-	   
+	@Override
+	public int getStartY() {
+		return playerY;
+	}
+
+	@Override
+	public int getTelX() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getTelY() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean collideSwitch(Shape s) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean getSwitch() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setSwitch(boolean s) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
